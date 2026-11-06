@@ -104,6 +104,76 @@
     .pill.ok{background:var(--green-soft);color:var(--green-dark)}
     .pill.low{background:#fbefee;color:var(--red)}
     .loading{padding:25px;text-align:center;color:var(--muted);font-size:13px}
+	.action-buttons {
+	  display: flex;
+	  flex-wrap: wrap;
+	  gap: 6px;
+	  min-width: 190px;
+	}
+
+	.action-btn {
+	  border: 1px solid #d9ded6;
+	  background: white;
+	  color: var(--text);
+	  border-radius: 9px;
+	  padding: 7px 9px;
+	  font-size: 11px;
+	  font-weight: 650;
+	}
+
+	.action-btn:hover {
+	  border-color: var(--green);
+	  background: #fbfcfa;
+	}
+
+	.action-btn.stock {
+	  color: var(--green-dark);
+	  border-color: #cbdccc;
+	}
+
+	.action-btn.use {
+	  color: #9b5146;
+	  border-color: #ead5d1;
+	}
+
+	.action-btn.archive {
+	  color: var(--red);
+	}
+
+	.history-type {
+	  display: inline-block;
+	  padding: 5px 8px;
+	  border-radius: 20px;
+	  font-size: 11px;
+	  font-weight: 700;
+	}
+
+	.history-type.stock {
+	  background: var(--green-soft);
+	  color: var(--green-dark);
+	}
+
+	.history-type.use {
+	  background: #fbefee;
+	  color: var(--red);
+	}
+
+	.history-detail {
+	  color: var(--muted);
+	  font-size: 11px;
+	  margin-top: 4px;
+	  line-height: 1.5;
+	}
+
+	@media(max-width:760px) {
+	  .toolbar {
+		flex-wrap: wrap;
+	  }
+	  .toolbar .search-input {
+		max-width: none !important;
+		width: 100%;
+	  }
+	}
     @media(max-width:760px){
       .shell{padding:19px 15px 34px}
       header{margin-bottom:24px}
@@ -228,13 +298,28 @@
           <p>ข้อมูลอุปกรณ์ทั้งหมดในคลัง</p>
         </div>
         <div class="toolbar">
-          <input id="searchEquipment" class="search-input" type="search" placeholder="ค้นหาชื่อ ยี่ห้อ หรือรุ่น..." />
-          <button id="refreshEquipment" class="secondary-btn" type="button">รีเฟรช</button>
-        </div>
+		  <input id="searchEquipment" class="search-input" type="search" placeholder="ค้นหาชื่อ ยี่ห้อ หรือรุ่น..." />
+		  <select id="equipmentFilter" class="search-input" style="max-width:150px">
+			<option value="active">กำลังใช้งาน</option>
+			<option value="archived">เลิกใช้งาน</option>
+			<option value="all">ทั้งหมด</option>
+		  </select>
+		  <button id="refreshEquipment" class="secondary-btn" type="button">รีเฟรช</button>
+		</div>
       </div>
       <div id="equipmentList" class="loading">กำลังโหลดข้อมูล...</div>
     </section>
   </section>
+   <section class="panel">
+	  <div class="panel-top">
+		<div>
+		  <h2>ประวัติรายการ (Transaction History)</h2>
+		  <p>แสดงประวัติรับเข้าและเบิกใช้งาน 100 รายการล่าสุด</p>
+		</div>
+		<button id="refreshHistory" class="secondary-btn" type="button">รีเฟรชประวัติ</button>
+	  </div>
+	  <div id="historyList" class="loading">กำลังโหลดประวัติ...</div>
+	</section>
 
   <div class="footer">AN Inventory · Internal use</div>
 </main>
@@ -316,77 +401,141 @@
       items.filter(item => item.quantity > 0).length;
   }
 
-  function renderEquipment() {
-    const query = normalizePart($("searchEquipment").value);
+function renderEquipment() {
+  const query = normalizePart($("searchEquipment").value);
+  const filter = $("equipmentFilter").value;
 
-    const filtered = currentEquipment.filter(item => {
-      const searchable = normalizePart(
-        [item.name, item.brand, item.model, item.unit].join(" ")
-      );
-      return searchable.includes(query);
-    });
+  const filtered = currentEquipment.filter(item => {
+    const isActive = item.active !== false;
 
-    const container = $("equipmentList");
+    if (filter === "active" && !isActive) return false;
+    if (filter === "archived" && isActive) return false;
 
-    if (filtered.length === 0) {
-      container.innerHTML = currentEquipment.length === 0
-        ? '<div class="empty">ยังไม่มีข้อมูลอุปกรณ์ในระบบ<br>เพิ่มอุปกรณ์รายการแรกได้จากแบบฟอร์มด้านบนครับ</div>'
-        : '<div class="empty">ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา</div>';
-      return;
-    }
+    const searchable = normalizePart(
+      [item.name, item.brand, item.model, item.unit].join(" ")
+    );
 
-    const table = document.createElement("table");
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>อุปกรณ์</th>
-          <th>หน่วย</th>
-          <th>คงเหลือ</th>
-          <th>จุดแจ้งเตือน</th>
-          <th>สถานะ</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    `;
+    return searchable.includes(query);
+  });
 
-    const tbody = table.querySelector("tbody");
+  const container = $("equipmentList");
 
-    filtered.forEach(item => {
-      const row = document.createElement("tr");
+  if (filtered.length === 0) {
+    container.innerHTML =
+      '<div class="empty">ไม่พบรายการอุปกรณ์</div>';
+    return;
+  }
 
-      const nameCell = document.createElement("td");
-      const name = document.createElement("strong");
-      name.textContent = item.name || "ไม่ระบุชื่อ";
-      const detail = document.createElement("span");
-      detail.className = "subtext";
-      detail.textContent = [item.brand, item.model].filter(Boolean).join(" · ") || "ไม่ระบุยี่ห้อ / รุ่น";
-      nameCell.append(name, detail);
+  const table = document.createElement("table");
 
-      const unitCell = document.createElement("td");
-      unitCell.textContent = item.unit || "-";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>อุปกรณ์</th>
+        <th>หน่วย</th>
+        <th>คงเหลือ</th>
+        <th>จุดแจ้งเตือน</th>
+        <th>สถานะ</th>
+        <th>จัดการ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
 
-      const quantityCell = document.createElement("td");
-      const quantity = document.createElement("span");
-      quantity.className = "qty";
-      quantity.textContent = item.quantity;
-      quantityCell.appendChild(quantity);
+  const tbody = table.querySelector("tbody");
 
-      const reorderCell = document.createElement("td");
-      reorderCell.textContent = item.reorderLevel;
+  filtered.forEach(item => {
+    const row = document.createElement("tr");
+    const isActive = item.active !== false;
+    const isLow = item.quantity <= item.reorderLevel;
 
-      const statusCell = document.createElement("td");
-      const pill = document.createElement("span");
-      const isLow = item.quantity <= item.reorderLevel;
+    const nameCell = document.createElement("td");
+    const name = document.createElement("strong");
+    name.textContent = item.name || "ไม่ระบุชื่อ";
+
+    const detail = document.createElement("span");
+    detail.className = "subtext";
+    detail.textContent =
+      [item.brand, item.model].filter(Boolean).join(" · ") ||
+      "ไม่ระบุยี่ห้อ / รุ่น";
+
+    nameCell.append(name, detail);
+
+    const unitCell = document.createElement("td");
+    unitCell.textContent = item.unit || "-";
+
+    const quantityCell = document.createElement("td");
+    const quantity = document.createElement("span");
+    quantity.className = "qty";
+    quantity.textContent = item.quantity ?? 0;
+    quantityCell.appendChild(quantity);
+
+    const reorderCell = document.createElement("td");
+    reorderCell.textContent = item.reorderLevel ?? 0;
+
+    const statusCell = document.createElement("td");
+    const pill = document.createElement("span");
+
+    if (!isActive) {
+      pill.className = "pill low";
+      pill.textContent = "เลิกใช้งาน";
+    } else {
       pill.className = "pill " + (isLow ? "low" : "ok");
       pill.textContent = isLow ? "ถึงจุดสั่งซื้อ" : "ปกติ";
-      statusCell.appendChild(pill);
+    }
 
-      row.append(nameCell, unitCell, quantityCell, reorderCell, statusCell);
-      tbody.appendChild(row);
-    });
+    statusCell.appendChild(pill);
 
-    container.replaceChildren(table);
-  }
+    const actionCell = document.createElement("td");
+    const actions = document.createElement("div");
+    actions.className = "action-buttons";
+
+    if (isActive) {
+      const stockButton = document.createElement("button");
+      stockButton.className = "action-btn stock";
+      stockButton.textContent = "รับเข้า";
+      stockButton.dataset.action = "stock";
+      stockButton.dataset.id = item.id;
+
+      const useButton = document.createElement("button");
+      useButton.className = "action-btn use";
+      useButton.textContent = "เบิกใช้";
+      useButton.dataset.action = "use";
+      useButton.dataset.id = item.id;
+
+      const archiveButton = document.createElement("button");
+      archiveButton.className = "action-btn archive";
+      archiveButton.textContent = "เลิกใช้งาน";
+      archiveButton.dataset.action = "archive";
+      archiveButton.dataset.id = item.id;
+
+      actions.append(stockButton, useButton, archiveButton);
+    } else {
+      const restoreButton = document.createElement("button");
+      restoreButton.className = "action-btn stock";
+      restoreButton.textContent = "เรียกกลับมาใช้งาน";
+      restoreButton.dataset.action = "restore";
+      restoreButton.dataset.id = item.id;
+
+      actions.appendChild(restoreButton);
+    }
+
+    actionCell.appendChild(actions);
+
+    row.append(
+      nameCell,
+      unitCell,
+      quantityCell,
+      reorderCell,
+      statusCell,
+      actionCell
+    );
+
+    tbody.appendChild(row);
+  });
+
+  container.replaceChildren(table);
+}
 
   async function loadEquipment() {
     $("equipmentList").textContent = "กำลังโหลดข้อมูล...";
@@ -409,6 +558,294 @@
         "ไม่สามารถโหลดข้อมูลได้ กรุณารีเฟรชหรือตรวจสอบสิทธิ์การใช้งาน";
     }
   }
+  
+  // --------------------------------
+// Stock In / Usage
+// --------------------------------
+
+async function processStockTransaction(equipmentId, type) {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("กรุณาเข้าสู่ระบบก่อนทำรายการ");
+    return;
+  }
+
+  const item = currentEquipment.find(x => x.id === equipmentId);
+
+  if (!item || item.active === false) {
+    alert("ไม่พบอุปกรณ์ หรืออุปกรณ์นี้เลิกใช้งานแล้ว");
+    return;
+  }
+
+  const label = type === "stock_in" ? "รับเข้า" : "เบิกใช้";
+
+  const input = prompt(
+    `ระบุจำนวนที่ต้องการ${label} (${item.unit || "หน่วย"})`
+  );
+
+  if (input === null) return;
+
+  const quantity = Number(input);
+
+  if (!Number.isSafeInteger(quantity) || quantity <= 0) {
+    alert("กรุณาระบุจำนวนเต็มที่มากกว่า 0");
+    return;
+  }
+
+  const note = prompt("หมายเหตุ (ไม่บังคับ)") || "";
+
+  if (note.length > 500) {
+    alert("หมายเหตุต้องไม่เกิน 500 ตัวอักษร");
+    return;
+  }
+
+  const equipmentRef = db.collection("equipment").doc(equipmentId);
+  const transactionRef = db.collection("stock_transactions").doc();
+
+  try {
+    await db.runTransaction(async transaction => {
+      // อ่านยอดล่าสุดก่อนคำนวณ
+      const equipmentSnap = await transaction.get(equipmentRef);
+
+      if (!equipmentSnap.exists) {
+        throw new Error("EQUIPMENT_NOT_FOUND");
+      }
+
+      const equipment = equipmentSnap.data();
+
+      if (equipment.active === false) {
+        throw new Error("EQUIPMENT_ARCHIVED");
+      }
+
+      const previousQuantity = equipment.quantity;
+
+      if (!Number.isSafeInteger(previousQuantity) ||
+          previousQuantity < 0) {
+        throw new Error("INVALID_STOCK");
+      }
+
+      let resultingQuantity;
+
+      if (type === "stock_in") {
+        resultingQuantity = previousQuantity + quantity;
+
+        if (!Number.isSafeInteger(resultingQuantity)) {
+          throw new Error("INVALID_STOCK");
+        }
+      } else {
+        if (quantity > previousQuantity) {
+          throw new Error("INSUFFICIENT_STOCK");
+        }
+
+        resultingQuantity = previousQuantity - quantity;
+      }
+
+      // บันทึกประวัติธุรกรรม
+      transaction.set(transactionRef, {
+        equipmentId,
+        itemKey: equipment.itemKey,
+        equipmentName: equipment.name,
+        equipmentBrand: equipment.brand || "",
+        equipmentModel: equipment.model || "",
+        type,
+        quantity,
+        previousQuantity,
+        resultingQuantity,
+        actorEmail: user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        note: note.trim()
+      });
+
+      // ปรับยอดอุปกรณ์และอ้างอิงธุรกรรมล่าสุด
+      transaction.update(equipmentRef, {
+        quantity: resultingQuantity,
+        lastTransactionId: transactionRef.id
+      });
+    });
+
+    alert(
+      `${label}เรียบร้อยแล้ว\nจำนวน ${quantity} ${item.unit || "หน่วย"}`
+    );
+
+    await Promise.all([
+      loadEquipment(),
+      loadTransactionHistory()
+    ]);
+
+  } catch (error) {
+    console.error("Stock transaction error:", error);
+
+    if (error.message === "INSUFFICIENT_STOCK") {
+      alert("จำนวนคงเหลือไม่เพียงพอ ไม่สามารถเบิกได้");
+    } else if (error.message === "EQUIPMENT_ARCHIVED") {
+      alert("อุปกรณ์นี้เลิกใช้งานแล้ว ไม่สามารถทำรายการได้");
+    } else if (error.message === "EQUIPMENT_NOT_FOUND") {
+      alert("ไม่พบข้อมูลอุปกรณ์ กรุณารีเฟรชรายการ");
+    } else if (error.message === "INVALID_STOCK") {
+      alert("ยอดคงเหลือไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ");
+    } else {
+      alert("บันทึกรายการไม่สำเร็จ กรุณาตรวจสอบสิทธิ์หรืออินเทอร์เน็ต");
+    }
+  }
+}
+
+
+// --------------------------------
+// Archive / Restore
+// --------------------------------
+
+async function changeEquipmentStatus(equipmentId, active) {
+  const item = currentEquipment.find(x => x.id === equipmentId);
+
+  if (!item) {
+    alert("ไม่พบข้อมูลอุปกรณ์");
+    return;
+  }
+
+  if (!active && item.quantity !== 0) {
+    alert(
+      `ยังไม่สามารถเลิกใช้งานได้ เนื่องจากมีของคงเหลือ ${item.quantity} ${item.unit || "หน่วย"}\nกรุณาเคลียร์สต็อกก่อน`
+    );
+    return;
+  }
+
+  const action = active ? "เรียกกลับมาใช้งาน" : "เลิกใช้งาน";
+
+  if (!confirm(`ยืนยัน${action} "${item.name}" หรือไม่?`)) {
+    return;
+  }
+
+  try {
+    await db.collection("equipment").doc(equipmentId).update({
+      active
+    });
+
+    alert(`${action}เรียบร้อยแล้ว`);
+    await loadEquipment();
+
+  } catch (error) {
+    console.error("Change equipment status error:", error);
+    alert("ไม่สามารถเปลี่ยนสถานะอุปกรณ์ได้ กรุณาตรวจสอบ Security Rules");
+  }
+}
+
+
+// --------------------------------
+// Transaction History
+// --------------------------------
+
+function formatDateTime(timestamp) {
+  if (!timestamp || typeof timestamp.toDate !== "function") {
+    return "กำลังบันทึก...";
+  }
+
+  return timestamp.toDate().toLocaleString("th-TH", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+async function loadTransactionHistory() {
+  const container = $("historyList");
+  container.textContent = "กำลังโหลดประวัติ...";
+
+  try {
+    const snapshot = await db.collection("stock_transactions")
+      .orderBy("createdAt", "desc")
+      .limit(100)
+      .get();
+
+    if (snapshot.empty) {
+      container.innerHTML =
+        '<div class="empty">ยังไม่มีประวัติการรับเข้าหรือเบิกใช้งาน</div>';
+      return;
+    }
+
+    const table = document.createElement("table");
+
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>วัน / เวลา</th>
+          <th>อุปกรณ์</th>
+          <th>ประเภท</th>
+          <th>จำนวน</th>
+          <th>ยอดก่อน → หลัง</th>
+          <th>ผู้ทำรายการ / หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      const row = document.createElement("tr");
+
+      const dateCell = document.createElement("td");
+      dateCell.textContent = formatDateTime(data.createdAt);
+
+      const itemCell = document.createElement("td");
+      const itemName = document.createElement("strong");
+      itemName.textContent = data.equipmentName || "-";
+
+      const itemDetail = document.createElement("span");
+      itemDetail.className = "subtext";
+      itemDetail.textContent =
+        [data.equipmentBrand, data.equipmentModel]
+          .filter(Boolean).join(" · ") || "-";
+
+      itemCell.append(itemName, itemDetail);
+
+      const typeCell = document.createElement("td");
+      const typeLabel = document.createElement("span");
+      const isStockIn = data.type === "stock_in";
+
+      typeLabel.className =
+        "history-type " + (isStockIn ? "stock" : "use");
+
+      typeLabel.textContent = isStockIn ? "รับเข้า" : "เบิกใช้";
+      typeCell.appendChild(typeLabel);
+
+      const quantityCell = document.createElement("td");
+      quantityCell.textContent = `${data.quantity} หน่วย`;
+
+      const balanceCell = document.createElement("td");
+      balanceCell.textContent =
+        `${data.previousQuantity} → ${data.resultingQuantity}`;
+
+      const actorCell = document.createElement("td");
+      const actor = document.createElement("div");
+      actor.textContent = data.actorEmail || "-";
+
+      const note = document.createElement("div");
+      note.className = "history-detail";
+      note.textContent = data.note || "-";
+
+      actorCell.append(actor, note);
+
+      row.append(
+        dateCell,
+        itemCell,
+        typeCell,
+        quantityCell,
+        balanceCell,
+        actorCell
+      );
+
+      tbody.appendChild(row);
+    });
+
+    container.replaceChildren(table);
+
+  } catch (error) {
+    console.error("Load history error:", error);
+    container.textContent =
+      "ไม่สามารถโหลดประวัติได้ กรุณาตรวจสอบสิทธิ์การใช้งาน";
+  }
+}
 
   $("googleSignIn").addEventListener("click", async () => {
     $("googleSignIn").disabled = true;
@@ -489,6 +926,7 @@
           unit,
           quantity: 0,
           reorderLevel,
+		  active: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           createdBy: user.email,
           lastTransactionId: ""
@@ -517,6 +955,37 @@
     }
   });
 
+// Equipment action buttons
+$("equipmentList").addEventListener("click", async event => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+
+  const action = button.dataset.action;
+  const equipmentId = button.dataset.id;
+
+  if (action === "stock") {
+    await processStockTransaction(equipmentId, "stock_in");
+  }
+
+  if (action === "use") {
+    await processStockTransaction(equipmentId, "use");
+  }
+
+  if (action === "archive") {
+    await changeEquipmentStatus(equipmentId, false);
+  }
+
+  if (action === "restore") {
+    await changeEquipmentStatus(equipmentId, true);
+  }
+});
+
+// Filter equipment
+$("equipmentFilter").addEventListener("change", renderEquipment);
+
+// Refresh history
+$("refreshHistory").addEventListener("click", loadTransactionHistory);
+
   auth.onAuthStateChanged(async user => {
     if (!user) {
       showLogin();
@@ -532,7 +1001,11 @@
       // อ่าน equipment เพื่อให้ Firestore Rules ตรวจสอบ allowlist
       await db.collection("equipment").limit(1).get();
       showDashboard(user);
-      await loadEquipment();
+
+await Promise.all([
+  loadEquipment(),
+  loadTransactionHistory()
+]);
     } catch (error) {
       console.error(error);
 
