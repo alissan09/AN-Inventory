@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -7,246 +8,555 @@
   <title>AN Inventory</title>
   <style>
     :root {
-      --bg: #f5f6f2;
-      --surface: #ffffff;
-      --text: #20251f;
-      --muted: #72796f;
-      --line: #e5e9e1;
-      --green: #527b5b;
-      --green-dark: #3e6247;
-      --green-soft: #edf4ed;
-      --red: #a7443d;
-      --shadow: 0 12px 36px rgba(33, 48, 34, .07);
+      --bg:#f5f6f2;--surface:#fff;--text:#20251f;--muted:#72796f;
+      --line:#e5e9e1;--green:#527b5b;--green-dark:#3e6247;
+      --green-soft:#edf4ed;--red:#a7443d;
+      --shadow:0 12px 36px rgba(33,48,34,.07);
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .shell{max-width:1120px;margin:0 auto;padding:28px 22px 48px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:34px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .mark{width:42px;height:42px;border-radius:13px;background:var(--green);
+      display:grid;place-items:center;color:white;font-weight:750;letter-spacing:-.06em}
+    .brand-name{font-size:18px;font-weight:750;letter-spacing:-.03em}
+    .brand-sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:750}
+    h1{font-size:clamp(27px,4vw,38px);letter-spacing:-.045em;margin:9px 0 8px}
+    .intro{color:var(--muted);line-height:1.65;margin:0}
+    .login-layout{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch}
+    .hero,.login-card,.panel{background:var(--surface);border:1px solid var(--line);
+      border-radius:22px;box-shadow:var(--shadow)}
+    .hero{padding:clamp(26px,5vw,48px);min-height:340px;display:flex;flex-direction:column;justify-content:space-between}
+    .hero-note{margin-top:38px;padding:17px 18px;background:var(--green-soft);
+      border-radius:14px;color:var(--green-dark);font-size:13px;line-height:1.6}
+    .login-card{padding:30px;display:flex;flex-direction:column;justify-content:center}
+    .login-card h2{margin:0 0 8px;font-size:21px}
+    .login-card p{color:var(--muted);line-height:1.6;font-size:14px;margin:0 0 24px}
+    .google-btn,.secondary-btn,.primary-btn{
+      min-height:44px;border-radius:12px;border:1px solid #d9ded6;background:white;
+      color:var(--text);display:inline-flex;align-items:center;justify-content:center;
+      gap:9px;padding:0 15px;font-weight:650;transition:.15s ease
     }
-    button { font: inherit; }
-    .shell { max-width: 1120px; margin: 0 auto; padding: 28px 22px 48px; }
-    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 34px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .mark {
-      width: 42px; height: 42px; border-radius: 13px; background: var(--green);
-      display: grid; place-items: center; color: white; font-weight: 750; letter-spacing: -.06em;
+    .google-btn{min-height:48px;width:100%}
+    .google-btn:hover,.secondary-btn:hover{border-color:var(--green);background:#fbfcfa}
+    .google-btn:disabled,button:disabled{opacity:.6;cursor:wait}
+    .google-g{font-weight:800;font-size:19px;color:#4285f4}
+    .primary-btn{background:var(--green);border-color:var(--green);color:white}
+    .primary-btn:hover{background:var(--green-dark)}
+    .message{display:none;margin-top:16px;padding:12px 14px;border-radius:11px;font-size:13px;line-height:1.55}
+    .message.show{display:block}
+    .message.error{background:#fbefee;color:var(--red)}
+    .message.info{background:var(--green-soft);color:var(--green-dark)}
+    .small-note{margin-top:18px;color:#8a9187;font-size:11px;line-height:1.55}
+    .dashboard{display:none}
+    .dashboard.show{display:block}
+    .welcome-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:24px}
+    .welcome-row h1{margin-bottom:5px}
+    .user-chip{display:flex;align-items:center;gap:10px;padding:9px 12px;
+      border:1px solid var(--line);background:white;border-radius:13px;max-width:360px}
+    .avatar{width:32px;height:32px;border-radius:50%;background:var(--green-soft);
+      display:grid;place-items:center;color:var(--green-dark);font-weight:700;flex:0 0 auto}
+    .user-email{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:18px}
+    .stat{background:white;border:1px solid var(--line);border-radius:17px;padding:20px}
+    .stat-label{color:var(--muted);font-size:13px}
+    .stat-value{font-size:28px;font-weight:750;margin-top:12px;letter-spacing:-.04em}
+    .panel{padding:23px;box-shadow:none;margin-bottom:18px}
+    .panel h2{font-size:17px;margin:0 0 7px}
+    .panel p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
+    .panel-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+    .status{display:inline-flex;align-items:center;gap:7px;color:var(--green-dark);
+      background:var(--green-soft);padding:7px 10px;border-radius:20px;font-size:11px;font-weight:700}
+    .dot{width:7px;height:7px;border-radius:50%;background:#5b9667}
+    .empty{border:1px dashed #d7dfd4;border-radius:14px;padding:28px 18px;
+      text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+    .footer{text-align:center;color:#969d93;font-size:11px;margin-top:34px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field.full{grid-column:1/-1}
+    .field label{font-size:12px;font-weight:650;color:#51594f}
+    .field input,.search-input{
+      width:100%;height:43px;border:1px solid #dce2d9;border-radius:10px;
+      padding:0 12px;background:white;color:var(--text);outline:none
     }
-    .brand-name { font-size: 18px; font-weight: 750; letter-spacing: -.03em; }
-    .brand-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
-    .eyebrow { color: var(--green); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 750; }
-    h1 { font-size: clamp(27px, 4vw, 38px); letter-spacing: -.045em; margin: 9px 0 8px; }
-    .intro { color: var(--muted); line-height: 1.65; margin: 0; }
-    .login-layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; align-items: stretch; }
-    .hero, .login-card, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
-    .hero { padding: clamp(26px, 5vw, 48px); min-height: 340px; display: flex; flex-direction: column; justify-content: space-between; }
-    .hero-note { margin-top: 38px; padding: 17px 18px; background: var(--green-soft); border-radius: 14px; color: var(--green-dark); font-size: 13px; line-height: 1.6; }
-    .login-card { padding: 30px; display: flex; flex-direction: column; justify-content: center; }
-    .login-card h2 { margin: 0 0 8px; font-size: 21px; }
-    .login-card p { color: var(--muted); line-height: 1.6; font-size: 14px; margin: 0 0 24px; }
-    .google-btn, .secondary-btn {
-      min-height: 48px; border-radius: 12px; border: 1px solid #d9ded6; background: white;
-      color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 11px; padding: 0 16px; font-weight: 650; transition: .15s ease;
-    }
-    .google-btn:hover, .secondary-btn:hover { border-color: var(--green); background: #fbfcfa; }
-    .google-btn:disabled { opacity: .6; cursor: wait; }
-    .google-g { font-weight: 800; font-size: 19px; color: #4285f4; }
-    .message { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 11px; font-size: 13px; line-height: 1.55; }
-    .message.show { display: block; }
-    .message.error { background: #fbefee; color: var(--red); }
-    .message.info { background: var(--green-soft); color: var(--green-dark); }
-    .small-note { margin-top: 18px; color: #8a9187; font-size: 11px; line-height: 1.55; }
-    .dashboard { display: none; }
-    .dashboard.show { display: block; }
-    .welcome-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
-    .welcome-row h1 { margin-bottom: 5px; }
-    .user-chip { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); background: white; border-radius: 13px; max-width: 310px; }
-    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-soft); display: grid; place-items: center; color: var(--green-dark); font-weight: 700; flex: 0 0 auto; }
-    .user-email { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 18px; }
-    .stat { background: white; border: 1px solid var(--line); border-radius: 17px; padding: 20px; }
-    .stat-label { color: var(--muted); font-size: 13px; }
-    .stat-value { font-size: 28px; font-weight: 750; margin-top: 12px; letter-spacing: -.04em; }
-    .panel { padding: 23px; box-shadow: none; }
-    .panel h2 { font-size: 17px; margin: 0 0 7px; }
-    .panel p { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
-    .panel-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
-    .status { display: inline-flex; align-items: center; gap: 7px; color: var(--green-dark); background: var(--green-soft); padding: 7px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: #5b9667; }
-    .empty { border: 1px dashed #d7dfd4; border-radius: 14px; padding: 28px 18px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
-    .footer { text-align: center; color: #969d93; font-size: 11px; margin-top: 34px; }
-    @media (max-width: 760px) {
-      .shell { padding: 19px 15px 34px; }
-      header { margin-bottom: 24px; }
-      .login-layout { grid-template-columns: 1fr; }
-      .hero { min-height: 250px; }
-      .hero-note { margin-top: 25px; }
-      .stats { grid-template-columns: 1fr; gap: 10px; }
-      .stat { padding: 16px 18px; }
-      .stat-value { margin-top: 6px; }
-      .welcome-row { flex-direction: column; }
-      .user-chip { max-width: 100%; }
+    .field input:focus,.search-input:focus{border-color:var(--green);box-shadow:0 0 0 3px #527b5b18}
+    .field small{font-size:11px;color:var(--muted)}
+    .form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:17px}
+    .form-message{font-size:12px;line-height:1.5;margin-top:12px;display:none}
+    .form-message.show{display:block}
+    .form-message.error{color:var(--red)}
+    .form-message.info{color:var(--green-dark)}
+    .toolbar{display:flex;gap:10px;align-items:center}
+    .search-input{max-width:300px}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:650px}
+    th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px}
+    th{font-size:11px;color:var(--muted);font-weight:700;background:#fafbf9}
+    td strong{font-weight:700}
+    .subtext{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+    .qty{font-weight:750;font-size:15px}
+    .pill{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700}
+    .pill.ok{background:var(--green-soft);color:var(--green-dark)}
+    .pill.low{background:#fbefee;color:var(--red)}
+    .loading{padding:25px;text-align:center;color:var(--muted);font-size:13px}
+    @media(max-width:760px){
+      .shell{padding:19px 15px 34px}
+      header{margin-bottom:24px}
+      .login-layout{grid-template-columns:1fr}
+      .hero{min-height:250px}
+      .hero-note{margin-top:25px}
+      .stats{grid-template-columns:1fr;gap:10px}
+      .stat{padding:16px 18px}
+      .stat-value{margin-top:6px}
+      .welcome-row{flex-direction:column}
+      .user-chip{max-width:100%;width:100%;flex-wrap:wrap}
+      .form-grid{grid-template-columns:1fr}
+      .field.full{grid-column:auto}
+      .panel{padding:17px}
+      .panel-top{align-items:flex-start;flex-direction:column}
+      .toolbar{width:100%}
+      .search-input{max-width:none}
     }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header>
-      <div class="brand">
-        <div class="mark">AN</div>
-        <div>
-          <div class="brand-name">AN Inventory</div>
-          <div class="brand-sub">Operating Room Supplies</div>
-        </div>
+<main class="shell">
+  <header>
+    <div class="brand">
+      <div class="mark">AN</div>
+      <div>
+        <div class="brand-name">AN Inventory</div>
+        <div class="brand-sub">Operating Room Supplies</div>
       </div>
-      <div class="eyebrow">Inventory system</div>
-    </header>
+    </div>
+    <div class="eyebrow">Inventory system</div>
+  </header>
 
-    <section id="loginView" class="login-layout">
-      <div class="hero">
-        <div>
-          <div class="eyebrow">Simple · Clear · Shared</div>
-          <h1>จัดการอุปกรณ์<br>ได้ในที่เดียว</h1>
-          <p class="intro">ระบบบันทึกสต็อกอุปกรณ์สำหรับทีมงาน<br>ตรวจสอบจำนวนคงเหลือและประวัติรายการได้</p>
-        </div>
-        <div class="hero-note">เข้าใช้งานด้วยบัญชี Google ที่ได้รับอนุญาตจากผู้ดูแลระบบเท่านั้น</div>
+  <section id="loginView" class="login-layout">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Simple · Clear · Shared</div>
+        <h1>จัดการอุปกรณ์<br>ได้ในที่เดียว</h1>
+        <p class="intro">ระบบบันทึกสต็อกอุปกรณ์สำหรับทีมงาน<br>ตรวจสอบจำนวนคงเหลือและประวัติรายการได้</p>
       </div>
-      <div class="login-card">
-        <h2>เข้าสู่ระบบ</h2>
-        <p>ใช้บัญชี Google ที่ได้รับสิทธิ์เพื่อเข้าใช้งาน AN Inventory</p>
-        <button id="googleSignIn" class="google-btn" type="button">
-          <span class="google-g">G</span><span>Sign in with Google</span>
-        </button>
-        <div id="loginMessage" class="message" role="status"></div>
-        <div class="small-note">หากยังไม่ได้รับอนุญาต กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มอีเมลในรายชื่อผู้ใช้งาน</div>
-      </div>
-    </section>
+      <div class="hero-note">เข้าใช้งานด้วยบัญชี Google ที่ได้รับอนุญาตจากผู้ดูแลระบบเท่านั้น</div>
+    </div>
+    <div class="login-card">
+      <h2>เข้าสู่ระบบ</h2>
+      <p>ใช้บัญชี Google ที่ได้รับสิทธิ์เพื่อเข้าใช้งาน AN Inventory</p>
+      <button id="googleSignIn" class="google-btn" type="button">
+        <span class="google-g">G</span><span>Sign in with Google</span>
+      </button>
+      <div id="loginMessage" class="message" role="status"></div>
+      <div class="small-note">หากยังไม่ได้รับอนุญาต กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มอีเมลในรายชื่อผู้ใช้งาน</div>
+    </div>
+  </section>
 
-    <section id="dashboardView" class="dashboard">
-      <div class="welcome-row">
-        <div>
-          <div class="eyebrow">Overview</div>
-          <h1>Dashboard</h1>
-          <p class="intro">ภาพรวมอุปกรณ์และสถานะสต็อก</p>
+  <section id="dashboardView" class="dashboard">
+    <div class="welcome-row">
+      <div>
+        <div class="eyebrow">Overview</div>
+        <h1>Dashboard</h1>
+        <p class="intro">ภาพรวมอุปกรณ์และสถานะสต็อก</p>
+      </div>
+      <div class="user-chip">
+        <div id="avatar" class="avatar">U</div>
+        <div style="min-width:0;flex:1">
+          <div id="userName" style="font-size:13px;font-weight:700;margin-bottom:3px">ผู้ใช้งาน</div>
+          <div id="userEmail" class="user-email"></div>
         </div>
-        <div class="user-chip">
-          <div id="avatar" class="avatar">U</div>
-          <div style="min-width:0">
-            <div id="userName" style="font-size:13px;font-weight:700;margin-bottom:3px">ผู้ใช้งาน</div>
-            <div id="userEmail" class="user-email"></div>
+        <button id="signOut" class="secondary-btn" style="min-height:34px;padding:0 10px;font-size:12px" type="button">ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">รายการอุปกรณ์ทั้งหมด</div><div id="equipmentCount" class="stat-value">0</div></div>
+      <div class="stat"><div class="stat-label">รายการถึงจุดสั่งซื้อ</div><div id="lowStockCount" class="stat-value">0</div></div>
+      <div class="stat"><div class="stat-label">รายการที่มีของคงเหลือ</div><div id="inStockCount" class="stat-value">0</div></div>
+    </div>
+
+    <section class="panel">
+      <div class="panel-top">
+        <div>
+          <h2>เพิ่มอุปกรณ์ใหม่</h2>
+          <p>อุปกรณ์ใหม่จะเริ่มต้นด้วยจำนวนคงเหลือ 0 ชิ้น</p>
+        </div>
+        <span class="status"><span class="dot"></span> เชื่อมต่อฐานข้อมูลแล้ว</span>
+      </div>
+
+      <form id="equipmentForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="itemName">ชื่ออุปกรณ์ *</label>
+            <input id="itemName" maxlength="100" required placeholder="เช่น Surgical Scissors" />
           </div>
-          <button id="signOut" class="secondary-btn" style="min-height:34px;padding:0 10px;font-size:12px;margin-left:5px" type="button">ออกจากระบบ</button>
+          <div class="field">
+            <label for="itemBrand">ยี่ห้อ</label>
+            <input id="itemBrand" maxlength="80" placeholder="เช่น Aesculap" />
+          </div>
+          <div class="field">
+            <label for="itemModel">รุ่น</label>
+            <input id="itemModel" maxlength="80" placeholder="เช่น BC123" />
+          </div>
+          <div class="field">
+            <label for="itemUnit">หน่วยนับ *</label>
+            <input id="itemUnit" maxlength="30" required placeholder="เช่น ชิ้น, กล่อง, ชุด" />
+          </div>
+          <div class="field">
+            <label for="reorderLevel">จุดแจ้งเตือนเมื่อของเหลือ (Reorder Level) *</label>
+            <input id="reorderLevel" type="number" min="0" step="1" value="5" required />
+            <small>เมื่อจำนวนคงเหลือน้อยกว่าหรือเท่ากับค่านี้ ระบบจะแจ้งเตือน</small>
+          </div>
         </div>
-      </div>
-      <div class="stats">
-        <div class="stat"><div class="stat-label">รายการอุปกรณ์ทั้งหมด</div><div id="equipmentCount" class="stat-value">—</div></div>
-        <div class="stat"><div class="stat-label">รายการใกล้ถึงจุดสั่งซื้อ</div><div class="stat-value">—</div></div>
-        <div class="stat"><div class="stat-label">รายการคงเหลือ</div><div class="stat-value">—</div></div>
-      </div>
-      <div class="panel">
-        <div class="panel-top">
-          <div><h2>รายการอุปกรณ์</h2><p>รายการอุปกรณ์ในคลังจะแสดงในส่วนนี้</p></div>
-          <span class="status"><span class="dot"></span> เชื่อมต่อฐานข้อมูลแล้ว</span>
+        <div id="formMessage" class="form-message" role="status"></div>
+        <div class="form-actions">
+          <button id="resetForm" class="secondary-btn" type="reset">ล้างข้อมูล</button>
+          <button id="saveEquipment" class="primary-btn" type="submit">บันทึกอุปกรณ์</button>
         </div>
-        <div id="equipmentEmpty" class="empty">ยังไม่มีข้อมูลอุปกรณ์ในระบบ<br>ขั้นตอนถัดไปเราจะเพิ่มฟังก์ชันเพิ่มอุปกรณ์ รับเข้า และบันทึกการใช้งานครับ</div>
-      </div>
+      </form>
     </section>
-    <div class="footer">AN Inventory · Internal use</div>
-  </main>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script>
-    // Firebase web configuration (public client configuration)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtWjDyYS8nGIpXw1NRwlL-z1vTRY5MX7w",
-      authDomain: "orinventory.firebaseapp.com",
-      projectId: "orinventory",
-      storageBucket: "orinventory.firebasestorage.app",
-      messagingSenderId: "157818207745",
-      appId: "1:157818207745:web:f31eef755b327bae4c0a00",
-      measurementId: "G-DW89GJX6M8"
-    };
+    <section class="panel">
+      <div class="panel-top">
+        <div>
+          <h2>รายการอุปกรณ์</h2>
+          <p>ข้อมูลอุปกรณ์ทั้งหมดในคลัง</p>
+        </div>
+        <div class="toolbar">
+          <input id="searchEquipment" class="search-input" type="search" placeholder="ค้นหาชื่อ ยี่ห้อ หรือรุ่น..." />
+          <button id="refreshEquipment" class="secondary-btn" type="button">รีเฟรช</button>
+        </div>
+      </div>
+      <div id="equipmentList" class="loading">กำลังโหลดข้อมูล...</div>
+    </section>
+  </section>
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  <div class="footer">AN Inventory · Internal use</div>
+</main>
 
-    const loginView = document.getElementById("loginView");
-    const dashboardView = document.getElementById("dashboardView");
-    const signInButton = document.getElementById("googleSignIn");
-    const loginMessage = document.getElementById("loginMessage");
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtWjDyYS8nGIpXw1NRwlL-z1vTRY5MX7w",
+    authDomain: "orinventory.firebaseapp.com",
+    projectId: "orinventory",
+    storageBucket: "orinventory.firebasestorage.app",
+    messagingSenderId: "157818207745",
+    appId: "1:157818207745:web:f31eef755b327bae4c0a00",
+    measurementId: "G-DW89GJX6M8"
+  };
 
-    function showMessage(text, type = "info") {
-      loginMessage.textContent = text;
-      loginMessage.className = "message show " + type;
-    }
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    function showLogin() {
-      loginView.style.display = "grid";
-      dashboardView.classList.remove("show");
-    }
+  const $ = id => document.getElementById(id);
+  let currentEquipment = [];
 
-    function showDashboard(user, equipmentCount) {
-      loginView.style.display = "none";
-      dashboardView.classList.add("show");
-      const email = user.email || "";
-      document.getElementById("userName").textContent = user.displayName || "ผู้ใช้งาน";
-      document.getElementById("userEmail").textContent = email;
-      document.getElementById("avatar").textContent = (user.displayName || email || "U").charAt(0).toUpperCase();
-      document.getElementById("equipmentCount").textContent = equipmentCount;
-    }
+  function showMessage(element, text, type = "info") {
+    element.textContent = text;
+    element.className = "message show " + type;
+  }
 
-    signInButton.addEventListener("click", async () => {
-      signInButton.disabled = true;
-      showMessage("กำลังเข้าสู่ระบบ...", "info");
-      try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: "select_account" });
-        await auth.signInWithPopup(provider);
-      } catch (error) {
-        console.error(error);
-        let message = "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
-        if (error.code === "auth/popup-closed-by-user") message = "หน้าต่างเข้าสู่ระบบถูกปิดก่อนดำเนินการเสร็จ";
-        if (error.code === "auth/unauthorized-domain") message = "โดเมนเว็บไซต์ยังไม่ได้รับอนุญาตใน Firebase Authentication";
-        if (error.code === "auth/popup-blocked") message = "เบราว์เซอร์บล็อกหน้าต่างเข้าสู่ระบบ กรุณาอนุญาต Pop-up แล้วลองใหม่";
-        showMessage(message, "error");
-      } finally {
-        signInButton.disabled = false;
-      }
+  function showFormMessage(text, type = "info") {
+    $("formMessage").textContent = text;
+    $("formMessage").className = "form-message show " + type;
+  }
+
+  function clearFormMessage() {
+    $("formMessage").textContent = "";
+    $("formMessage").className = "form-message";
+  }
+
+  function showLogin() {
+    $("loginView").style.display = "grid";
+    $("dashboardView").classList.remove("show");
+  }
+
+  function showDashboard(user) {
+    $("loginView").style.display = "none";
+    $("dashboardView").classList.add("show");
+    const email = user.email || "";
+    $("userName").textContent = user.displayName || "ผู้ใช้งาน";
+    $("userEmail").textContent = email;
+    $("avatar").textContent = (user.displayName || email || "U").charAt(0).toUpperCase();
+  }
+
+  // สร้าง document ID เดียวกันสำหรับชื่อ + ยี่ห้อ + รุ่นเดียวกัน
+  function normalizePart(value) {
+    return String(value || "").normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
+  }
+
+  async function createItemKey(name, brand, model) {
+    const source = [
+      normalizePart(name),
+      normalizePart(brand),
+      normalizePart(model)
+    ].join("|");
+
+    const bytes = new TextEncoder().encode(source);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest))
+      .map(byte => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  function updateStats(items) {
+    $("equipmentCount").textContent = items.length;
+    $("lowStockCount").textContent =
+      items.filter(item => item.quantity <= item.reorderLevel).length;
+    $("inStockCount").textContent =
+      items.filter(item => item.quantity > 0).length;
+  }
+
+  function renderEquipment() {
+    const query = normalizePart($("searchEquipment").value);
+
+    const filtered = currentEquipment.filter(item => {
+      const searchable = normalizePart(
+        [item.name, item.brand, item.model, item.unit].join(" ")
+      );
+      return searchable.includes(query);
     });
 
-    document.getElementById("signOut").addEventListener("click", () => auth.signOut());
+    const container = $("equipmentList");
 
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        showLogin();
-        signInButton.disabled = false;
-        return;
-      }
+    if (filtered.length === 0) {
+      container.innerHTML = currentEquipment.length === 0
+        ? '<div class="empty">ยังไม่มีข้อมูลอุปกรณ์ในระบบ<br>เพิ่มอุปกรณ์รายการแรกได้จากแบบฟอร์มด้านบนครับ</div>'
+        : '<div class="empty">ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา</div>';
+      return;
+    }
 
-      signInButton.disabled = true;
-      showMessage("กำลังตรวจสอบสิทธิ์การใช้งาน...", "info");
-      try {
-        // The allowlist itself is intentionally unreadable from the client.
-        // A permitted read from equipment proves that Firestore Rules accepted this user.
-        const snapshot = await db.collection("equipment").get();
-        showDashboard(user, snapshot.size);
-      } catch (error) {
-        console.error(error);
-        if (error.code === "permission-denied" || error.code === "firestore/permission-denied") {
-          showLogin();
-          showMessage("บัญชีนี้ยังไม่ได้รับอนุญาตให้ใช้งาน AN Inventory กรุณาติดต่อผู้ดูแลระบบ", "error");
-          await auth.signOut();
-        } else {
-          showLogin();
-          showMessage("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่", "error");
+    const table = document.createElement("table");
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>อุปกรณ์</th>
+          <th>หน่วย</th>
+          <th>คงเหลือ</th>
+          <th>จุดแจ้งเตือน</th>
+          <th>สถานะ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+
+    filtered.forEach(item => {
+      const row = document.createElement("tr");
+
+      const nameCell = document.createElement("td");
+      const name = document.createElement("strong");
+      name.textContent = item.name || "ไม่ระบุชื่อ";
+      const detail = document.createElement("span");
+      detail.className = "subtext";
+      detail.textContent = [item.brand, item.model].filter(Boolean).join(" · ") || "ไม่ระบุยี่ห้อ / รุ่น";
+      nameCell.append(name, detail);
+
+      const unitCell = document.createElement("td");
+      unitCell.textContent = item.unit || "-";
+
+      const quantityCell = document.createElement("td");
+      const quantity = document.createElement("span");
+      quantity.className = "qty";
+      quantity.textContent = item.quantity;
+      quantityCell.appendChild(quantity);
+
+      const reorderCell = document.createElement("td");
+      reorderCell.textContent = item.reorderLevel;
+
+      const statusCell = document.createElement("td");
+      const pill = document.createElement("span");
+      const isLow = item.quantity <= item.reorderLevel;
+      pill.className = "pill " + (isLow ? "low" : "ok");
+      pill.textContent = isLow ? "ถึงจุดสั่งซื้อ" : "ปกติ";
+      statusCell.appendChild(pill);
+
+      row.append(nameCell, unitCell, quantityCell, reorderCell, statusCell);
+      tbody.appendChild(row);
+    });
+
+    container.replaceChildren(table);
+  }
+
+  async function loadEquipment() {
+    $("equipmentList").textContent = "กำลังโหลดข้อมูล...";
+    try {
+      const snapshot = await db.collection("equipment").get();
+      currentEquipment = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      currentEquipment.sort((a, b) =>
+        String(a.name || "").localeCompare(String(b.name || ""), "th")
+      );
+
+      updateStats(currentEquipment);
+      renderEquipment();
+    } catch (error) {
+      console.error("Load equipment error:", error);
+      $("equipmentList").textContent =
+        "ไม่สามารถโหลดข้อมูลได้ กรุณารีเฟรชหรือตรวจสอบสิทธิ์การใช้งาน";
+    }
+  }
+
+  $("googleSignIn").addEventListener("click", async () => {
+    $("googleSignIn").disabled = true;
+    showMessage($("loginMessage"), "กำลังเข้าสู่ระบบ...", "info");
+
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      await auth.signInWithPopup(provider);
+    } catch (error) {
+      console.error(error);
+      let message = "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+      if (error.code === "auth/popup-closed-by-user") message = "หน้าต่างเข้าสู่ระบบถูกปิดก่อนดำเนินการเสร็จ";
+      if (error.code === "auth/unauthorized-domain") message = "โดเมนเว็บไซต์ยังไม่ได้รับอนุญาตใน Firebase Authentication";
+      if (error.code === "auth/popup-blocked") message = "เบราว์เซอร์บล็อกหน้าต่างเข้าสู่ระบบ กรุณาอนุญาต Pop-up แล้วลองใหม่";
+      showMessage($("loginMessage"), message, "error");
+    } finally {
+      $("googleSignIn").disabled = false;
+    }
+  });
+
+  $("signOut").addEventListener("click", () => auth.signOut());
+  $("refreshEquipment").addEventListener("click", loadEquipment);
+  $("searchEquipment").addEventListener("input", renderEquipment);
+
+  $("equipmentForm").addEventListener("reset", () => {
+    setTimeout(clearFormMessage, 0);
+  });
+
+  $("equipmentForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const user = auth.currentUser;
+    if (!user) {
+      showFormMessage("กรุณาเข้าสู่ระบบก่อนเพิ่มอุปกรณ์", "error");
+      return;
+    }
+
+    const name = $("itemName").value.trim();
+    const brand = $("itemBrand").value.trim();
+    const model = $("itemModel").value.trim();
+    const unit = $("itemUnit").value.trim();
+    const reorderLevel = Number($("reorderLevel").value);
+
+    if (!name || !unit) {
+      showFormMessage("กรุณากรอกชื่ออุปกรณ์และหน่วยนับ", "error");
+      return;
+    }
+
+    if (!Number.isSafeInteger(reorderLevel) || reorderLevel < 0) {
+      showFormMessage("Reorder Level ต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป", "error");
+      return;
+    }
+
+    const saveButton = $("saveEquipment");
+    saveButton.disabled = true;
+    saveButton.textContent = "กำลังบันทึก...";
+    clearFormMessage();
+
+    try {
+      const itemKey = await createItemKey(name, brand, model);
+      const equipmentRef = db.collection("equipment").doc(itemKey);
+
+      // ใช้ document ID ที่คำนวณจากชื่อ + ยี่ห้อ + รุ่น
+      // เพื่อไม่ให้สร้างรายการซ้ำจากการกดพร้อมกันได้ง่าย
+      await db.runTransaction(async transaction => {
+        const existing = await transaction.get(equipmentRef);
+
+        if (existing.exists) {
+          throw new Error("DUPLICATE_EQUIPMENT");
         }
-      } finally {
-        signInButton.disabled = false;
+
+        transaction.set(equipmentRef, {
+          itemKey,
+          name,
+          brand,
+          model,
+          unit,
+          quantity: 0,
+          reorderLevel,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: user.email,
+          lastTransactionId: ""
+        });
+      });
+
+      $("equipmentForm").reset();
+      $("reorderLevel").value = 5;
+      showFormMessage("เพิ่มอุปกรณ์เรียบร้อยแล้ว จำนวนเริ่มต้น 0 ชิ้น", "info");
+      await loadEquipment();
+
+    } catch (error) {
+      console.error("Save equipment error:", error);
+
+      if (error.message === "DUPLICATE_EQUIPMENT") {
+        showFormMessage("มีอุปกรณ์ชื่อ ยี่ห้อ และรุ่นนี้อยู่ในระบบแล้ว กรุณาตรวจสอบรายการเดิม", "error");
+      } else if (error.code === "permission-denied" ||
+                 error.code === "firestore/permission-denied") {
+        showFormMessage("ไม่มีสิทธิ์บันทึกข้อมูล กรุณาตรวจสอบ Security Rules และสิทธิ์ผู้ใช้งาน", "error");
+      } else {
+        showFormMessage("บันทึกไม่สำเร็จ กรุณาลองใหม่ หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ", "error");
       }
-    });
-  </script>
+    } finally {
+      saveButton.disabled = false;
+      saveButton.textContent = "บันทึกอุปกรณ์";
+    }
+  });
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      showLogin();
+      $("googleSignIn").disabled = false;
+      currentEquipment = [];
+      return;
+    }
+
+    $("googleSignIn").disabled = true;
+    showMessage($("loginMessage"), "กำลังตรวจสอบสิทธิ์การใช้งาน...", "info");
+
+    try {
+      // อ่าน equipment เพื่อให้ Firestore Rules ตรวจสอบ allowlist
+      await db.collection("equipment").limit(1).get();
+      showDashboard(user);
+      await loadEquipment();
+    } catch (error) {
+      console.error(error);
+
+      if (error.code === "permission-denied" ||
+          error.code === "firestore/permission-denied") {
+        showLogin();
+        showMessage(
+          $("loginMessage"),
+          "บัญชีนี้ยังไม่ได้รับอนุญาตให้ใช้งาน AN Inventory กรุณาติดต่อผู้ดูแลระบบ",
+          "error"
+        );
+        await auth.signOut();
+      } else {
+        showLogin();
+        showMessage(
+          $("loginMessage"),
+          "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่",
+          "error"
+        );
+      }
+    } finally {
+      $("googleSignIn").disabled = false;
+    }
+  });
+</script>
 </body>
 </html>
