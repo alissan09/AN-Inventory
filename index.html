@@ -223,6 +223,102 @@
 	  .action-buttons {max-width: 180px;}
 	  .action-btn {padding: 8px 10px;font-size: 12px;}
     }
+	
+	/* Equipment responsive view */
+	.equipment-card-view {
+	  display: none;
+	}
+
+	.equipment-card {
+	  border: 1px solid var(--line);
+	  border-radius: 15px;
+	  padding: 16px;
+	  background: white;
+	  margin-bottom: 12px;
+	}
+
+	.equipment-card-header {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: flex-start;
+	  gap: 10px;
+	  margin-bottom: 13px;
+	}
+
+	.equipment-card-name {
+	  font-size: 15px;
+	  font-weight: 750;
+	  line-height: 1.5;
+	  overflow-wrap: anywhere;
+	}
+
+	.equipment-card-detail {
+	  color: var(--muted);
+	  font-size: 12px;
+	  margin-top: 3px;
+	  line-height: 1.5;
+	}
+
+	.equipment-card-info {
+	  display: grid;
+	  grid-template-columns: 1fr 1fr;
+	  gap: 10px;
+	  margin-bottom: 15px;
+	}
+
+	.equipment-card-info > div {
+	  background: #f8faf7;
+	  border-radius: 10px;
+	  padding: 10px;
+	  min-width: 0;
+	}
+
+	.equipment-card-label {
+	  color: var(--muted);
+	  font-size: 11px;
+	  margin-bottom: 5px;
+	}
+
+	.equipment-card-value {
+	  font-size: 14px;
+	  font-weight: 700;
+	  overflow-wrap: anywhere;
+	}
+
+	.equipment-card-actions {
+	  display: grid;
+	  grid-template-columns: repeat(2, minmax(0, 1fr));
+	  gap: 8px;
+	}
+
+	.equipment-card-actions .action-btn {
+	  min-height: 42px;
+	  width: 100%;
+	  font-size: 12px;
+	}
+
+	.equipment-card-actions .archive {
+	  grid-column: 1 / -1;
+	}
+
+	@media (max-width: 760px) {
+	  .equipment-table-view {
+		display: none;
+	  }
+
+	  .equipment-card-view {
+		display: block;
+	  }
+
+	  .equipment-card {
+		padding: 14px;
+	  }
+
+	  .equipment-card-info {
+		gap: 8px;
+	  }
+	}
+
   </style>
 </head>
 <body>
@@ -432,6 +528,7 @@
       items.filter(item => item.quantity > 0).length;
   }
 
+
 function renderEquipment() {
   const query = normalizePart($("searchEquipment").value);
   const filter = $("equipmentFilter").value;
@@ -457,6 +554,10 @@ function renderEquipment() {
     return;
   }
 
+  // --------------------------------
+  // Desktop: Table View
+  // --------------------------------
+
   const table = document.createElement("table");
 
   table.innerHTML = `
@@ -475,10 +576,47 @@ function renderEquipment() {
 
   const tbody = table.querySelector("tbody");
 
+  // --------------------------------
+  // Mobile: Card View
+  // --------------------------------
+
+  const cardView = document.createElement("div");
+  cardView.className = "equipment-card-view";
+
+  function createInfo(label, value) {
+    const box = document.createElement("div");
+
+    const title = document.createElement("div");
+    title.className = "equipment-card-label";
+    title.textContent = label;
+
+    const content = document.createElement("div");
+    content.className = "equipment-card-value";
+    content.textContent = value;
+
+    box.append(title, content);
+    return box;
+  }
+
+  function createActionButton(text, action, id, extraClass = "") {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "action-btn " + extraClass;
+    button.textContent = text;
+    button.dataset.action = action;
+    button.dataset.id = id;
+
+    return button;
+  }
+
   filtered.forEach(item => {
-    const row = document.createElement("tr");
     const isActive = item.active !== false;
     const isLow = item.quantity <= item.reorderLevel;
+
+    // ===== Desktop Table Row =====
+
+    const row = document.createElement("tr");
 
     const nameCell = document.createElement("td");
     const name = document.createElement("strong");
@@ -522,33 +660,20 @@ function renderEquipment() {
     actions.className = "action-buttons";
 
     if (isActive) {
-      const stockButton = document.createElement("button");
-      stockButton.className = "action-btn stock";
-      stockButton.textContent = "รับเข้า";
-      stockButton.dataset.action = "stock";
-      stockButton.dataset.id = item.id;
-
-      const useButton = document.createElement("button");
-      useButton.className = "action-btn use";
-      useButton.textContent = "เบิกใช้";
-      useButton.dataset.action = "use";
-      useButton.dataset.id = item.id;
-
-      const archiveButton = document.createElement("button");
-      archiveButton.className = "action-btn archive";
-      archiveButton.textContent = "เลิกใช้งาน";
-      archiveButton.dataset.action = "archive";
-      archiveButton.dataset.id = item.id;
-
-      actions.append(stockButton, useButton, archiveButton);
+      actions.append(
+        createActionButton("รับเข้า", "stock", item.id, "stock"),
+        createActionButton("เบิกใช้", "use", item.id, "use"),
+        createActionButton("เลิกใช้งาน", "archive", item.id, "archive")
+      );
     } else {
-      const restoreButton = document.createElement("button");
-      restoreButton.className = "action-btn stock";
-      restoreButton.textContent = "เรียกกลับมาใช้งาน";
-      restoreButton.dataset.action = "restore";
-      restoreButton.dataset.id = item.id;
-
-      actions.appendChild(restoreButton);
+      actions.append(
+        createActionButton(
+          "เรียกกลับมาใช้งาน",
+          "restore",
+          item.id,
+          "stock"
+        )
+      );
     }
 
     actionCell.appendChild(actions);
@@ -563,13 +688,79 @@ function renderEquipment() {
     );
 
     tbody.appendChild(row);
+
+    // ===== Mobile Card =====
+
+    const card = document.createElement("div");
+    card.className = "equipment-card";
+
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "equipment-card-header";
+
+    const nameGroup = document.createElement("div");
+
+    const cardName = document.createElement("div");
+    cardName.className = "equipment-card-name";
+    cardName.textContent = item.name || "ไม่ระบุชื่อ";
+
+    const cardDetail = document.createElement("div");
+    cardDetail.className = "equipment-card-detail";
+    cardDetail.textContent =
+      [item.brand, item.model].filter(Boolean).join(" · ") ||
+      "ไม่ระบุยี่ห้อ / รุ่น";
+
+    nameGroup.append(cardName, cardDetail);
+
+    const cardStatus = document.createElement("span");
+
+    if (!isActive) {
+      cardStatus.className = "pill low";
+      cardStatus.textContent = "เลิกใช้งาน";
+    } else {
+      cardStatus.className = "pill " + (isLow ? "low" : "ok");
+      cardStatus.textContent = isLow ? "ถึงจุดสั่งซื้อ" : "ปกติ";
+    }
+
+    cardHeader.append(nameGroup, cardStatus);
+
+    const info = document.createElement("div");
+    info.className = "equipment-card-info";
+
+    info.append(
+      createInfo("จำนวนคงเหลือ", `${item.quantity ?? 0} ${item.unit || "หน่วย"}`),
+      createInfo("จุดแจ้งเตือน", `${item.reorderLevel ?? 0} ${item.unit || "หน่วย"}`)
+    );
+
+    const cardActions = document.createElement("div");
+    cardActions.className = "equipment-card-actions";
+
+    if (isActive) {
+      cardActions.append(
+        createActionButton("รับเข้า", "stock", item.id, "stock"),
+        createActionButton("เบิกใช้", "use", item.id, "use"),
+        createActionButton("เลิกใช้งาน", "archive", item.id, "archive")
+      );
+    } else {
+      cardActions.append(
+        createActionButton(
+          "เรียกกลับมาใช้งาน",
+          "restore",
+          item.id,
+          "stock"
+        )
+      );
+    }
+
+    card.append(cardHeader, info, cardActions);
+    cardView.appendChild(card);
   });
 
-	const tableWrap = document.createElement("div");
-	tableWrap.className = "table-wrap";
-	tableWrap.appendChild(table);
+  // แสดงทั้งสองรูปแบบ แล้วใช้ CSS เลือกตามขนาดหน้าจอ
+  const tableView = document.createElement("div");
+  tableView.className = "equipment-table-view";
+  tableView.appendChild(table);
 
-	container.replaceChildren(tableWrap);
+  container.replaceChildren(tableView, cardView);
 }
 
   async function loadEquipment() {
