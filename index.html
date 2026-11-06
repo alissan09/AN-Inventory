@@ -4,26 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#111315" />
+  <meta name="theme-color" content="#202522" />
   <title>AN Inventory</title>
   <style>
     :root 
 	{
 	  color-scheme: dark;
 
-	  --bg: #111315;
-	  --surface: #1c2023;
-	  --surface-alt: #252a2e;
-	  --text: #edf1ee;
-	  --muted: #a0aaa3;
-	  --line: #353d40;
+	  --bg: #202522;
+	  --surface: #2B322E;
+	  --surface-alt: #353E39;
 
-	  --green: #6b9a72;
-	  --green-dark: #a2c9a7;
-	  --green-soft: #26392d;
+	  --text: #F1F4F1;
+	  --muted: #B5C0B8;
+	  --line: #465149;
 
-	  --red: #df7971;
-	  --shadow: 0 12px 36px rgba(0,0,0,.22);
+	  --green: #8DB99A;
+	  --green-dark: #A8D1B2;
+	  --green-soft: #354A3B;
+
+	  --red: #E58C83;
+
+	  --shadow: 0 12px 36px rgba(0,0,0,.20);
 	}
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
@@ -436,7 +438,8 @@
 	   AN Inventory - Dark Theme
 	================================= */
 
-	body {
+	body 
+	{
 	  background: var(--bg);
 	  color: var(--text);
 	}
@@ -480,19 +483,12 @@
 
 	.mark {
 	  background: var(--green);
-	  color: #ffffff;
+	  color: #202522;
 	}
 
 	.avatar {
 	  background: var(--green-soft);
 	  color: var(--green-dark);
-	}
-
-	.stat,
-	.panel,
-	.hero,
-	.login-card {
-	  box-shadow: var(--shadow);
 	}
 
 	.field label {
@@ -509,13 +505,13 @@
 
 	.field input::placeholder,
 	.search-input::placeholder {
-	  color: #7f8983;
+	  color: #A0AAA3;
 	}
 
 	.field input:focus,
 	.search-input:focus {
 	  border-color: var(--green);
-	  box-shadow: 0 0 0 3px rgba(107,154,114,.18);
+	  box-shadow: 0 0 0 3px rgba(141,185,154,.20);
 	}
 
 	.google-btn,
@@ -529,18 +525,18 @@
 	.google-btn:hover,
 	.secondary-btn:hover,
 	.action-btn:hover {
-	  background: #30383b;
+	  background: #414C45;
 	  border-color: var(--green);
 	}
 
 	.primary-btn {
-	  background: var(--green);
-	  border-color: var(--green);
-	  color: #ffffff;
+	  background: #527B5B;
+	  border-color: #527B5B;
+	  color: #FFFFFF;
 	}
 
 	.primary-btn:hover {
-	  background: #527b5b;
+	  background: #648D6C;
 	}
 
 	.status {
@@ -555,7 +551,7 @@
 	}
 
 	th {
-	  background: #252b2f;
+	  background: #353E39;
 	  color: var(--muted);
 	}
 
@@ -577,19 +573,19 @@
 
 	.pill.low,
 	.history-type.use {
-	  background: rgba(223,121,113,.14);
+	  background: rgba(229,140,131,.15);
 	  color: var(--red);
 	}
 
 	.action-btn.stock {
 	  color: var(--green-dark);
-	  border-color: #45654b;
+	  border-color: #587C60;
 	}
 
 	.action-btn.use,
 	.action-btn.archive {
 	  color: var(--red);
-	  border-color: #70413e;
+	  border-color: #87534D;
 	}
 
 	.history-card-footer {
@@ -597,7 +593,7 @@
 	}
 
 	.message.error {
-	  background: rgba(223,121,113,.14);
+	  background: rgba(229,140,131,.15);
 	  color: var(--red);
 	}
 
@@ -616,11 +612,10 @@
 
 	.small-note,
 	.footer {
-	  color: #7f8983;
+	  color: var(--muted);
 	}
 
-	/* History Filter */
-
+	/* History filters */
 	.history-filters {
 	  display: flex;
 	  align-items: center;
@@ -653,7 +648,6 @@
 
 	@media (max-width: 760px) {
 	  .history-filters {
-		display: flex;
 		flex-direction: column;
 		align-items: stretch;
 	  }
