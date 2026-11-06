@@ -660,6 +660,20 @@
 	  }
 	}
 
+	/* Add Equipment Panel Toggle */
+	[hidden] {
+	  display: none !important;
+	}
+
+	#toggleAddEquipment {
+	  white-space: nowrap;
+	}
+
+	@media (max-width: 760px) {
+	  #toggleAddEquipment {
+		width: 100%;
+	  }
+	}
   </style>
 </head>
 <body>
@@ -718,7 +732,7 @@
       <div class="stat"><div class="stat-label">รายการที่มีของคงเหลือ</div><div id="inStockCount" class="stat-value">0</div></div>
     </div>
 
-    <section class="panel">
+    <section class="panel" id="addEquipmentPanel" hidden>
       <div class="panel-top">
         <div>
           <h2>เพิ่มอุปกรณ์ใหม่</h2>
@@ -773,6 +787,15 @@
 			<option value="all">ทั้งหมด</option>
 		  </select>
 		  <button id="refreshEquipment" class="secondary-btn" type="button">รีเฟรช</button>
+		  <button
+			  id="toggleAddEquipment"
+			  class="primary-btn"
+			  type="button"
+			  aria-expanded="false"
+			  aria-controls="addEquipmentPanel"
+		  >
+			+ เพิ่มอุปกรณ์
+		  </button>
 		</div>
       </div>
       <div id="equipmentList" class="loading">กำลังโหลดข้อมูล...</div>
@@ -1136,9 +1159,13 @@ function renderEquipment() {
         ...doc.data()
       }));
 
-      currentEquipment.sort((a, b) =>
-        String(a.name || "").localeCompare(String(b.name || ""), "th")
-      );
+		// เรียงตามวันที่เพิ่มอุปกรณ์ จากเก่าไปใหม่
+	currentEquipment.sort((a, b) => {
+	  const timeA = a.createdAt?.toMillis?.() || 0;
+	  const timeB = b.createdAt?.toMillis?.() || 0;
+
+	  return timeA - timeB;
+	});
 
       updateStats(currentEquipment);
       renderEquipment();
@@ -1654,6 +1681,30 @@ async function loadTransactionHistory() {
   $("signOut").addEventListener("click", () => auth.signOut());
   $("refreshEquipment").addEventListener("click", loadEquipment);
   $("searchEquipment").addEventListener("input", renderEquipment);
+  // Toggle Add Equipment Form
+	$("toggleAddEquipment").addEventListener("click", () => {
+	  const panel = $("addEquipmentPanel");
+	  const button = $("toggleAddEquipment");
+
+	  const willOpen = panel.hidden === true;
+
+	  panel.hidden = !willOpen;
+
+	  button.textContent = willOpen
+		? "− ปิดฟอร์มเพิ่มอุปกรณ์"
+		: "+ เพิ่มอุปกรณ์";
+
+	  button.setAttribute("aria-expanded", String(willOpen));
+
+	  if (willOpen) {
+		panel.scrollIntoView({
+		  behavior: "smooth",
+		  block: "start"
+		});
+
+		$("itemName").focus({ preventScroll: true });
+	  }
+	});
 
   $("equipmentForm").addEventListener("reset", () => {
     setTimeout(clearFormMessage, 0);
