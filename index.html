@@ -4,15 +4,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f5f6f2" />
+  <meta name="theme-color" content="#111315" />
   <title>AN Inventory</title>
   <style>
-    :root {
-      --bg:#f5f6f2;--surface:#fff;--text:#20251f;--muted:#72796f;
-      --line:#e5e9e1;--green:#527b5b;--green-dark:#3e6247;
-      --green-soft:#edf4ed;--red:#a7443d;
-      --shadow:0 12px 36px rgba(33,48,34,.07);
-    }
+    :root 
+	{
+	  color-scheme: dark;
+
+	  --bg: #111315;
+	  --surface: #1c2023;
+	  --surface-alt: #252a2e;
+	  --text: #edf1ee;
+	  --muted: #a0aaa3;
+	  --line: #353d40;
+
+	  --green: #6b9a72;
+	  --green-dark: #a2c9a7;
+	  --green-soft: #26392d;
+
+	  --red: #df7971;
+	  --shadow: 0 12px 36px rgba(0,0,0,.22);
+	}
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
       font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -420,6 +432,240 @@
 	  }
 	}
 
+	/* =================================
+	   AN Inventory - Dark Theme
+	================================= */
+
+	body {
+	  background: var(--bg);
+	  color: var(--text);
+	}
+
+	.hero,
+	.login-card,
+	.panel,
+	.stat,
+	.user-chip,
+	.equipment-card,
+	.history-card {
+	  background: var(--surface);
+	  border-color: var(--line);
+	}
+
+	.hero-note {
+	  background: var(--green-soft);
+	  color: var(--green-dark);
+	}
+
+	.brand-sub,
+	.intro,
+	.panel p,
+	.login-card p,
+	.stat-label,
+	.user-email,
+	.subtext,
+	.history-detail,
+	.history-card-date,
+	.history-card-detail,
+	.history-card-label,
+	.history-card-note,
+	.equipment-card-detail,
+	.equipment-card-label {
+	  color: var(--muted);
+	}
+
+	.eyebrow {
+	  color: var(--green-dark);
+	}
+
+	.mark {
+	  background: var(--green);
+	  color: #ffffff;
+	}
+
+	.avatar {
+	  background: var(--green-soft);
+	  color: var(--green-dark);
+	}
+
+	.stat,
+	.panel,
+	.hero,
+	.login-card {
+	  box-shadow: var(--shadow);
+	}
+
+	.field label {
+	  color: var(--text);
+	}
+
+	.field input,
+	.search-input,
+	select {
+	  background: var(--surface-alt);
+	  color: var(--text);
+	  border-color: var(--line);
+	}
+
+	.field input::placeholder,
+	.search-input::placeholder {
+	  color: #7f8983;
+	}
+
+	.field input:focus,
+	.search-input:focus {
+	  border-color: var(--green);
+	  box-shadow: 0 0 0 3px rgba(107,154,114,.18);
+	}
+
+	.google-btn,
+	.secondary-btn,
+	.action-btn {
+	  background: var(--surface-alt);
+	  color: var(--text);
+	  border-color: var(--line);
+	}
+
+	.google-btn:hover,
+	.secondary-btn:hover,
+	.action-btn:hover {
+	  background: #30383b;
+	  border-color: var(--green);
+	}
+
+	.primary-btn {
+	  background: var(--green);
+	  border-color: var(--green);
+	  color: #ffffff;
+	}
+
+	.primary-btn:hover {
+	  background: #527b5b;
+	}
+
+	.status {
+	  background: var(--green-soft);
+	  color: var(--green-dark);
+	}
+
+	.empty {
+	  border-color: var(--line);
+	  background: var(--surface-alt);
+	  color: var(--muted);
+	}
+
+	th {
+	  background: #252b2f;
+	  color: var(--muted);
+	}
+
+	th,
+	td {
+	  border-bottom-color: var(--line);
+	}
+
+	.equipment-card-info > div,
+	.history-card-summary > div {
+	  background: var(--surface-alt);
+	}
+
+	.pill.ok,
+	.history-type.stock {
+	  background: var(--green-soft);
+	  color: var(--green-dark);
+	}
+
+	.pill.low,
+	.history-type.use {
+	  background: rgba(223,121,113,.14);
+	  color: var(--red);
+	}
+
+	.action-btn.stock {
+	  color: var(--green-dark);
+	  border-color: #45654b;
+	}
+
+	.action-btn.use,
+	.action-btn.archive {
+	  color: var(--red);
+	  border-color: #70413e;
+	}
+
+	.history-card-footer {
+	  border-top-color: var(--line);
+	}
+
+	.message.error {
+	  background: rgba(223,121,113,.14);
+	  color: var(--red);
+	}
+
+	.message.info {
+	  background: var(--green-soft);
+	  color: var(--green-dark);
+	}
+
+	.form-message.error {
+	  color: var(--red);
+	}
+
+	.form-message.info {
+	  color: var(--green-dark);
+	}
+
+	.small-note,
+	.footer {
+	  color: #7f8983;
+	}
+
+	/* History Filter */
+
+	.history-filters {
+	  display: flex;
+	  align-items: center;
+	  gap: 9px;
+	  flex-wrap: wrap;
+	  margin-bottom: 16px;
+	}
+
+	.history-filters .search-input {
+	  flex: 1 1 240px;
+	  max-width: none;
+	  min-width: 0;
+	}
+
+	.history-filters select {
+	  flex: 0 1 160px;
+	  min-width: 130px;
+	}
+
+	.history-filter-empty {
+	  display: none;
+	  padding: 22px 14px;
+	  text-align: center;
+	  color: var(--muted);
+	  font-size: 13px;
+	  border: 1px dashed var(--line);
+	  border-radius: 12px;
+	  margin-top: 10px;
+	}
+
+	@media (max-width: 760px) {
+	  .history-filters {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+	  }
+
+	  .history-filters .search-input,
+	  .history-filters select {
+		width: 100%;
+		max-width: none;
+		flex: auto;
+	  }
+	}
+
   </style>
 </head>
 <body>
@@ -537,18 +783,41 @@
       </div>
       <div id="equipmentList" class="loading">กำลังโหลดข้อมูล...</div>
     </section>
-  </section>
-   <section class="panel">
+	
+	<section class="panel">
 	  <div class="panel-top">
 		<div>
 		  <h2>ประวัติรายการ (Transaction History)</h2>
 		  <p>แสดงประวัติรับเข้าและเบิกใช้งาน 100 รายการล่าสุด</p>
 		</div>
 		<button id="refreshHistory" class="secondary-btn" type="button">รีเฟรชประวัติ</button>
-	  </div>
-	  <div id="historyList" class="loading">กำลังโหลดประวัติ...</div>
-	</section>
+	  </div>  
+	<div class="history-filters">
+	  <input
+		id="searchHistory"
+		class="search-input"
+		type="search"
+		placeholder="ค้นหาชื่ออุปกรณ์ ยี่ห้อ รุ่น หรือ Email..."
+	  />
 
+	  <select id="historyTypeFilter" class="search-input">
+		<option value="all">ทุกประเภท</option>
+		<option value="stock_in">รับเข้า</option>
+		<option value="use">เบิกใช้</option>
+	  </select>
+
+	  <button id="clearHistoryFilter" class="secondary-btn" type="button">
+		ล้างตัวกรอง
+	  </button>
+	</div>
+
+	<div id="historyList" class="loading">กำลังโหลดประวัติ...</div>
+
+	<div id="historyNoResults" class="history-filter-empty">
+	  ไม่พบประวัติที่ตรงกับเงื่อนไขการค้นหา
+	</div>
+	</section>
+  </section>
   <div class="footer">AN Inventory · Internal use</div>
 </main>
 
@@ -1152,6 +1421,14 @@ async function loadTransactionHistory() {
       // ===== Desktop Table Row =====
 
       const row = document.createElement("tr");
+	  row.dataset.type = data.type || "";
+	  row.dataset.search = normalizePart([
+		data.equipmentName,
+		data.equipmentBrand,
+		data.equipmentModel,
+		data.actorEmail,
+		data.note
+	  ].join(" "));
 
       const dateCell = document.createElement("td");
       dateCell.textContent = dateText;
@@ -1208,6 +1485,14 @@ async function loadTransactionHistory() {
 
       const card = document.createElement("div");
       card.className = "history-card";
+	  card.dataset.type = data.type || "";
+	  card.dataset.search = normalizePart([
+		data.equipmentName,
+		data.equipmentBrand,
+		data.equipmentModel,
+		data.actorEmail,
+		data.note
+	  ].join(" "));
 
       const cardHeader = document.createElement("div");
       cardHeader.className = "history-card-header";
@@ -1285,6 +1570,7 @@ async function loadTransactionHistory() {
     tableView.appendChild(tableWrap);
 
     container.replaceChildren(tableView, cardView);
+	filterTransactionHistory();
 
   } catch (error) {
     console.error("Load history error:", error);
@@ -1293,6 +1579,63 @@ async function loadTransactionHistory() {
   }
 }
 
+	function filterTransactionHistory() {
+	  const query = normalizePart($("searchHistory").value);
+	  const selectedType = $("historyTypeFilter").value;
+
+	  const rows = document.querySelectorAll(
+		"#historyList .history-table-view tbody tr"
+	  );
+
+	  const cards = document.querySelectorAll(
+		"#historyList .history-card-view .history-card"
+	  );
+
+	  let matchedCount = 0;
+
+	  function shouldShow(element) {
+		const matchesSearch =
+		  !query || element.dataset.search.includes(query);
+
+		const matchesType =
+		  selectedType === "all" ||
+		  element.dataset.type === selectedType;
+
+		return matchesSearch && matchesType;
+	  }
+
+	  rows.forEach(row => {
+		const visible = shouldShow(row);
+		row.style.display = visible ? "" : "none";
+	  });
+
+	  cards.forEach(card => {
+		const visible = shouldShow(card);
+		card.style.display = visible ? "" : "none";
+
+		if (visible) matchedCount++;
+	  });
+
+	  $("historyNoResults").style.display =
+		matchedCount === 0 ? "block" : "none";
+	}
+
+	// History Filter Events
+	$("searchHistory").addEventListener(
+	  "input",
+	  filterTransactionHistory
+	);
+
+	$("historyTypeFilter").addEventListener(
+	  "change",
+	  filterTransactionHistory
+	);
+
+	$("clearHistoryFilter").addEventListener("click", () => {
+	  $("searchHistory").value = "";
+	  $("historyTypeFilter").value = "all";
+	  filterTransactionHistory();
+	});
 
   $("googleSignIn").addEventListener("click", async () => {
     $("googleSignIn").disabled = true;
