@@ -319,6 +319,107 @@
 	  }
 	}
 
+	/* Transaction History - Mobile Card View */
+
+	.history-card-view {
+	  display: none;
+	}
+
+	.history-card {
+	  background: white;
+	  border: 1px solid var(--line);
+	  border-radius: 15px;
+	  padding: 15px;
+	  margin-bottom: 12px;
+	}
+
+	.history-card-header {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
+	  gap: 10px;
+	  margin-bottom: 12px;
+	}
+
+	.history-card-date {
+	  color: var(--muted);
+	  font-size: 11px;
+	  line-height: 1.5;
+	}
+
+	.history-card-name {
+	  font-size: 14px;
+	  font-weight: 750;
+	  line-height: 1.5;
+	  overflow-wrap: anywhere;
+	}
+
+	.history-card-detail {
+	  color: var(--muted);
+	  font-size: 11px;
+	  margin-top: 3px;
+	  line-height: 1.5;
+	}
+
+	.history-card-summary {
+	  display: grid;
+	  grid-template-columns: 1fr 1fr;
+	  gap: 9px;
+	  margin: 13px 0;
+	}
+
+	.history-card-summary > div {
+	  background: #f8faf7;
+	  border-radius: 10px;
+	  padding: 11px;
+	  min-width: 0;
+	}
+
+	.history-card-label {
+	  color: var(--muted);
+	  font-size: 11px;
+	  margin-bottom: 5px;
+	}
+
+	.history-card-value {
+	  font-size: 17px;
+	  font-weight: 750;
+	  overflow-wrap: anywhere;
+	}
+
+	.history-card-value.stock {
+	  color: var(--green-dark);
+	}
+
+	.history-card-value.use {
+	  color: var(--red);
+	}
+
+	.history-card-footer {
+	  border-top: 1px solid var(--line);
+	  padding-top: 10px;
+	  font-size: 12px;
+	  line-height: 1.6;
+	  overflow-wrap: anywhere;
+	}
+
+	.history-card-note {
+	  color: var(--muted);
+	  font-size: 11px;
+	  margin-top: 4px;
+	  overflow-wrap: anywhere;
+	}
+
+	@media (max-width: 760px) {
+	  .history-table-view {
+		display: none;
+	  }
+
+	  .history-card-view {
+		display: block;
+	  }
+	}
+
   </style>
 </head>
 <body>
@@ -972,6 +1073,7 @@ function formatDateTime(timestamp) {
   });
 }
 
+
 async function loadTransactionHistory() {
   const container = $("historyList");
   container.textContent = "กำลังโหลดประวัติ...";
@@ -987,6 +1089,10 @@ async function loadTransactionHistory() {
         '<div class="empty">ยังไม่มีประวัติการรับเข้าหรือเบิกใช้งาน</div>';
       return;
     }
+
+    // --------------------------------
+    // Desktop: Table View
+    // --------------------------------
 
     const table = document.createElement("table");
 
@@ -1006,14 +1112,52 @@ async function loadTransactionHistory() {
 
     const tbody = table.querySelector("tbody");
 
+    // --------------------------------
+    // Mobile: Transaction Card View
+    // --------------------------------
+
+    const cardView = document.createElement("div");
+    cardView.className = "history-card-view";
+
+    function createHistoryInfo(label, value, typeClass = "") {
+      const box = document.createElement("div");
+
+      const title = document.createElement("div");
+      title.className = "history-card-label";
+      title.textContent = label;
+
+      const content = document.createElement("div");
+      content.className = "history-card-value " + typeClass;
+      content.textContent = value;
+
+      box.append(title, content);
+      return box;
+    }
+
     snapshot.docs.forEach(doc => {
       const data = doc.data();
+      const isStockIn = data.type === "stock_in";
+      const typeText = isStockIn ? "รับเข้า" : "เบิกใช้";
+      const typeClass = isStockIn ? "stock" : "use";
+
+      const quantity = Number(data.quantity) || 0;
+      const quantityText =
+        (isStockIn ? "+" : "-") + quantity;
+
+      const previousQuantity = data.previousQuantity ?? 0;
+      const resultingQuantity = data.resultingQuantity ?? 0;
+
+      const dateText = formatDateTime(data.createdAt);
+
+      // ===== Desktop Table Row =====
+
       const row = document.createElement("tr");
 
       const dateCell = document.createElement("td");
-      dateCell.textContent = formatDateTime(data.createdAt);
+      dateCell.textContent = dateText;
 
       const itemCell = document.createElement("td");
+
       const itemName = document.createElement("strong");
       itemName.textContent = data.equipmentName || "-";
 
@@ -1027,22 +1171,19 @@ async function loadTransactionHistory() {
 
       const typeCell = document.createElement("td");
       const typeLabel = document.createElement("span");
-      const isStockIn = data.type === "stock_in";
-
-      typeLabel.className =
-        "history-type " + (isStockIn ? "stock" : "use");
-
-      typeLabel.textContent = isStockIn ? "รับเข้า" : "เบิกใช้";
+      typeLabel.className = "history-type " + typeClass;
+      typeLabel.textContent = typeText;
       typeCell.appendChild(typeLabel);
 
       const quantityCell = document.createElement("td");
-      quantityCell.textContent = `${data.quantity} หน่วย`;
+      quantityCell.textContent = quantity;
 
       const balanceCell = document.createElement("td");
       balanceCell.textContent =
-        `${data.previousQuantity} → ${data.resultingQuantity}`;
+        `${previousQuantity} → ${resultingQuantity}`;
 
       const actorCell = document.createElement("td");
+
       const actor = document.createElement("div");
       actor.textContent = data.actorEmail || "-";
 
@@ -1062,13 +1203,88 @@ async function loadTransactionHistory() {
       );
 
       tbody.appendChild(row);
+
+      // ===== Mobile Transaction Card =====
+
+      const card = document.createElement("div");
+      card.className = "history-card";
+
+      const cardHeader = document.createElement("div");
+      cardHeader.className = "history-card-header";
+
+      const cardDate = document.createElement("div");
+      cardDate.className = "history-card-date";
+      cardDate.textContent = dateText;
+
+      const cardType = document.createElement("span");
+      cardType.className = "history-type " + typeClass;
+      cardType.textContent = typeText;
+
+      cardHeader.append(cardDate, cardType);
+
+      const cardName = document.createElement("div");
+      cardName.className = "history-card-name";
+      cardName.textContent = data.equipmentName || "-";
+
+      const cardDetail = document.createElement("div");
+      cardDetail.className = "history-card-detail";
+      cardDetail.textContent =
+        [data.equipmentBrand, data.equipmentModel]
+          .filter(Boolean).join(" · ") || "-";
+
+      const summary = document.createElement("div");
+      summary.className = "history-card-summary";
+
+      summary.append(
+        createHistoryInfo(
+          isStockIn ? "จำนวนที่รับเข้า" : "จำนวนที่เบิก",
+          quantityText,
+          typeClass
+        ),
+        createHistoryInfo(
+          "ยอดคงเหลือ ก่อน → หลัง",
+          `${previousQuantity} → ${resultingQuantity}`
+        )
+      );
+
+      const footer = document.createElement("div");
+      footer.className = "history-card-footer";
+
+      const actorLabel = document.createElement("div");
+      actorLabel.className = "history-card-label";
+      actorLabel.textContent = "ผู้ทำรายการ";
+
+      const actorEmail = document.createElement("div");
+      actorEmail.textContent = data.actorEmail || "-";
+
+      const cardNote = document.createElement("div");
+      cardNote.className = "history-card-note";
+      cardNote.textContent = "หมายเหตุ: " + (data.note || "-");
+
+      footer.append(actorLabel, actorEmail, cardNote);
+
+      card.append(
+        cardHeader,
+        cardName,
+        cardDetail,
+        summary,
+        footer
+      );
+
+      cardView.appendChild(card);
     });
 
-    const tableWrap = document.createElement("div");
-	tableWrap.className = "table-wrap";
-	tableWrap.appendChild(table);
+    // แสดง Table บนคอมพิวเตอร์ และ Card บนมือถือ
+    const tableView = document.createElement("div");
+    tableView.className = "history-table-view";
 
-	container.replaceChildren(tableWrap);
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "table-wrap";
+    tableWrap.appendChild(table);
+
+    tableView.appendChild(tableWrap);
+
+    container.replaceChildren(tableView, cardView);
 
   } catch (error) {
     console.error("Load history error:", error);
@@ -1076,6 +1292,7 @@ async function loadTransactionHistory() {
       "ไม่สามารถโหลดประวัติได้ กรุณาตรวจสอบสิทธิ์การใช้งาน";
   }
 }
+
 
   $("googleSignIn").addEventListener("click", async () => {
     $("googleSignIn").disabled = true;
