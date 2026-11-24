@@ -1320,13 +1320,6 @@ async function changeEquipmentStatus(equipmentId, active) {
     return;
   }
 
-  if (!active && item.quantity !== 0) {
-    alert(
-      `ยังไม่สามารถเลิกใช้งานได้ เนื่องจากมีของคงเหลือ ${item.quantity} ${item.unit || "หน่วย"}\nกรุณาเคลียร์สต็อกก่อน`
-    );
-    return;
-  }
-
   const action = active ? "เรียกกลับมาใช้งาน" : "เลิกใช้งาน";
 
   if (!confirm(`ยืนยัน${action} "${item.name}" หรือไม่?`)) {
@@ -1334,8 +1327,34 @@ async function changeEquipmentStatus(equipmentId, active) {
   }
 
   try {
-    await db.collection("equipment").doc(equipmentId).update({
-      active
+    await db.runTransaction(async transaction => {
+      // อ่านสถานะล่าสุดจาก server เพื่อป้องกัน race condition
+      const snap = await transaction.get(
+        db.collection("equipment").doc(equipmentId)
+      );
+
+      if (!snap.exists) {
+        throw new Error("EQUIPMENT_NOT_FOUND");
+      }
+
+      const data = snap.data();
+
+      if (!active) {
+        // Archive: ต้อง active อยู่ และยอดคงเหลือเป็น 0 พอดี (จาก server)
+        if (data.active === false) {
+          throw new Error("ALREADY_ARCHIVED");
+        }
+        if (data.quantity !== 0) {
+          throw new Error("STOCK_NOT_ZERO");
+        }
+      } else {
+        // Restore: ต้องอยู่ในสถานะเลิกใช้งานอยู่
+        if (data.active !== false) {
+          throw new Error("ALREADY_ACTIVE");
+        }
+      }
+
+      transaction.update(snap.ref, { active });
     });
 
     alert(`${action}เรียบร้อยแล้ว`);
@@ -1343,7 +1362,20 @@ async function changeEquipmentStatus(equipmentId, active) {
 
   } catch (error) {
     console.error("Change equipment status error:", error);
-    alert("ไม่สามารถเปลี่ยนสถานะอุปกรณ์ได้ กรุณาตรวจสอบ Security Rules");
+
+    if (error.message === "STOCK_NOT_ZERO") {
+      alert(
+        "ยังไม่สามารถเลิกใช้งานได้ เนื่องจากมีของคงเหลือ กรุณาเบิกใช้จนยอดเป็น 0 ก่อน"
+      );
+    } else if (error.message === "EQUIPMENT_NOT_FOUND") {
+      alert("ไม่พบข้อมูลอุปกรณ์ กรุณารีเฟรชรายการ");
+    } else if (error.message === "ALREADY_ARCHIVED") {
+      alert("อุปกรณ์นี้อยู่ในสถานะเลิกใช้งานแล้ว");
+    } else if (error.message === "ALREADY_ACTIVE") {
+      alert("อุปกรณ์นี้อยู่ในสถานะใช้งานอยู่แล้ว");
+    } else {
+      alert("ไม่สามารถเปลี่ยนสถานะอุปกรณ์ได้ กรุณาตรวจสอบ Security Rules");
+    }
   }
 }
 
